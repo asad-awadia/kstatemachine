@@ -35,8 +35,32 @@ open class DefaultFinalDataState<out D>(name: String? = null) : DefaultDataState
     override fun <E : Event> addTransition(transition: Transition<E>) = super<FinalDataState>.addTransition(transition)
 }
 
-class DefaultHistoryState(name: String? = null, override val historyType: HistoryType = HistoryType.SHALLOW) :
-    BaseStateImpl(name, ChildMode.EXCLUSIVE), HistoryState {
+/**
+ * It is open for subclassing as all other [State] implementations, but I do not know real use cases for it.
+ */
+open class DefaultHistoryState(
+    name: String? = null,
+    override val historyType: HistoryType = HistoryType.SHALLOW,
+    private var _defaultState: State? = null
+) : BaseStateImpl(name, ChildMode.EXCLUSIVE), HistoryState {
+
+    override fun setParent(parent: InternalState) {
+        super.setParent(parent)
+
+        if (_defaultState == null)
+            _defaultState = parent.initialState as State
+        else
+            require(parent.states.contains(defaultState)) { "Default state is not a parent child" }
+    }
+
+    override val defaultState get() = checkNotNull(_defaultState) { "Default state is not set" }
+
+    private var _storedState: State? = null
+
+    override fun storeState(owner: IState, currentState: IState) {
+        _storedState = currentState as State
+    }
+
     override fun <S : IState> addState(state: S, init: StateBlock<S>?) =
         throw UnsupportedOperationException("HistoryState can not have child states")
 

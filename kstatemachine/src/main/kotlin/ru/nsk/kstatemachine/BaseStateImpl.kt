@@ -19,6 +19,8 @@ open class BaseStateImpl(override val name: String?, override val childMode: Chi
     private var _initialState: InternalState? = null
     override val initialState get() = _initialState
 
+    private val historyStates: List<HistoryState> get() = states.filterIsInstance<HistoryState>()
+
     override val machine get() = if (this is StateMachine) this else requireParent().machine
 
     private val _transitions = mutableSetOf<Transition<*>>()
@@ -48,8 +50,13 @@ open class BaseStateImpl(override val name: String?, override val childMode: Chi
 
     override fun <S : IState> addState(state: S, init: StateBlock<S>?): S {
         check(!machine.isRunning) { "Can not add state after state machine started" }
-        if (childMode == ChildMode.PARALLEL)
+        if (childMode == ChildMode.PARALLEL) {
             require(state !is FinalState) { "Can not add FinalState in parallel child mode" }
+            if (state is HistoryState)
+                require(state.historyType != HistoryType.SHALLOW) {
+                    "Can not add Shallow HistoryState in parallel child mode"
+                }
+        }
 
         state.name?.let {
             require(findState(it, recursive = false) == null) { "State with name $it already exists" }
@@ -58,7 +65,7 @@ open class BaseStateImpl(override val name: String?, override val childMode: Chi
         state as InternalState
         require(_states.add(state)) { "$state already added" }
         state.setParent(this)
-        
+
         if (init != null) state.init()
         return state
     }
@@ -181,6 +188,13 @@ open class BaseStateImpl(override val name: String?, override val childMode: Chi
         require(states.contains(state)) { "$state is not a child of $this" }
 
         if (currentState == state) return
+
+        // store history
+        currentState?.let { currentState ->
+            // FIXME only State is supported (not DataState), add some check?
+            historyStates.forEach { it.storeState(this, currentState) }
+        }
+
         currentState?.recursiveExit(transitionParams)
         currentState = state
 

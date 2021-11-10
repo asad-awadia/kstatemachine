@@ -90,6 +90,9 @@ interface FinalDataState<out D> : IFinalState, DataState<D>
  */
 interface HistoryState : State {
     val historyType: HistoryType
+    /** Initial parent state if was not set explicitly */
+    val defaultState: State
+    fun storeState(owner: IState, currentState: IState)
 }
 
 typealias StateBlock<S> = S.() -> Unit
