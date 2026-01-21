@@ -11,6 +11,7 @@ import ru.nsk.kstatemachine.event.Event
 import ru.nsk.kstatemachine.event.WrappedEvent
 import ru.nsk.kstatemachine.statemachine.StateMachineDslMarker
 
+@ConsistentCopyVisibility
 @StateMachineDslMarker
 data class TransitionParams<E : Event> internal constructor(
     val transition: Transition<E>,

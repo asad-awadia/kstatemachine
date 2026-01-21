@@ -16,7 +16,6 @@ import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.mockk.confirmVerified
 import io.mockk.verify
 import io.mockk.verifySequence
-import org.junit.jupiter.api.fail
 import ru.nsk.kstatemachine.*
 import ru.nsk.kstatemachine.state.*
 import ru.nsk.kstatemachine.statemachine.ProcessingResult.PROCESSED
@@ -54,7 +53,7 @@ class TransitionTest : FreeSpec({
                             if (it.direction.targetState === state2)
                                 callbacks.onStateExit(this)
                             else
-                                fail("incorrect direction ${it.direction}")
+                                error("incorrect direction ${it.direction}")
                         }
 
                         transitionOn<SwitchEvent> {

@@ -12,8 +12,8 @@ object Versions {
 
     // compatibility
     const val jdkVersion = 17
-    const val languageVersion = "1.8"
-    const val apiVersion = "1.8"
+    const val languageVersion = "2.0"
+    const val apiVersion = "2.0"
 
     // dependencies
     const val coroutinesCore = "1.10.2"

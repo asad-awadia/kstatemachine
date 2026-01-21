@@ -1,6 +1,6 @@
 # Publishing to maven central
 The process of publishing to maven central is absolutely non-intuitive, not visualizable and confusing.
-I faced unexpectable behaviour when my publications had a random count of components in the UI
+I faced unexpectable behavior when my publications had a random count of components in the UI
 https://central.sonatype.com/publishing/deployments
 Publishing such a library version causes error on client's side, when he tries to resolve all required dependencies.
 There are absolutely no errors nor in publishing logs nor in web UI.
