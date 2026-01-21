@@ -15,6 +15,7 @@ import ru.nsk.kstatemachine.state.ChildMode
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -42,8 +43,29 @@ suspend fun createStateMachine(
     contract {
         callsInPlace(init, InvocationKind.EXACTLY_ONCE)
     }
+    checkCoroutineScopeValidity(scope, creationArguments)
     return CoroutinesLibCoroutineAbstraction(scope)
         .createStateMachine(name, childMode, start, creationArguments, init)
+}
+
+private fun checkCoroutineScopeValidity(scope: CoroutineScope, creationArguments: CreationArguments) {
+    if (creationArguments.skipCoroutineScopeValidityCheck) return
+
+    val dispatcher = scope.coroutineContext[ContinuationInterceptor]
+    val dispatcherName = dispatcher.toString()
+    if (dispatcher === Dispatchers.Default ||
+        dispatcherName == "Dispatchers.Default" ||
+        dispatcherName.startsWith("Dispatchers.Default.limitedParallelism") ||
+        dispatcherName == "Dispatchers.IO" || // can't get IO dispatcher in commonMain
+        dispatcherName.startsWith("Dispatchers.IO.limitedParallelism")
+    ) {
+        error(
+            "Using Dispatchers.Default or Dispatchers.IO for StateMachine even with limitedParallelism(1) is the most likely an error," +
+                    " as it is multi-threaded, see the docs: \n" +
+                    "https://kstatemachine.github.io/kstatemachine/pages/multithreading.html#use-single-threaded-coroutinescope" +
+            "You can opt-out this check by CreationArguments::skipCoroutineScopeValidityCheck flag."
+        )
+    }
 }
 
 /**
