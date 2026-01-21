@@ -12,6 +12,7 @@ import io.kotest.assertions.throwables.shouldThrowUnitWithMessage
 import io.kotest.assertions.throwables.shouldThrowWithMessage
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.datatest.withData
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldEndWith
@@ -26,10 +27,7 @@ import ru.nsk.kstatemachine.state.*
 import ru.nsk.kstatemachine.statemachine.StateMachineTestData.OffEvent
 import ru.nsk.kstatemachine.statemachine.StateMachineTestData.OnEvent
 import ru.nsk.kstatemachine.testing.Testing.startFromBlocking
-import ru.nsk.kstatemachine.transition.DefaultTransition
-import ru.nsk.kstatemachine.transition.Transition
-import ru.nsk.kstatemachine.transition.TransitionType
-import ru.nsk.kstatemachine.transition.onTriggered
+import ru.nsk.kstatemachine.transition.*
 
 private object StateMachineTestData {
     object OnEvent : Event
@@ -361,6 +359,22 @@ class StateMachineTest : FreeSpec({
                     initialState("initial")
                     onStarted { stop() }
                 }
+            }
+
+            "isStartTransition" {
+                lateinit var state2: State
+                val machine = createTestStateMachine(coroutineStarterType) {
+                    state2 = state("state2") {
+                        onEntry { it.isStartTransition shouldBe false }
+                    }
+                    initialState("initial") {
+                        onEntry { it.isStartTransition shouldBe true }
+                        transitionOn<SwitchEvent> { targetState = { state2 } }
+                    }
+                    onStarted { it.isStartTransition shouldBe true }
+                }
+                machine.processEvent(SwitchEvent)
+                machine.activeStates().shouldContain(state2)
             }
 
             "destroy from onStart" {
