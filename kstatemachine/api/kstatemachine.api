@@ -219,6 +219,7 @@ public final class ru/nsk/kstatemachine/persistence/StrictValidator : ru/nsk/kst
 public final class ru/nsk/kstatemachine/persistence/WarningType : java/lang/Enum {
 	public static final field ProcessingResultNotMatch Lru/nsk/kstatemachine/persistence/WarningType;
 	public static final field RecordedAndProcessedEventCountNotMatch Lru/nsk/kstatemachine/persistence/WarningType;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lru/nsk/kstatemachine/persistence/WarningType;
 	public static fun values ()[Lru/nsk/kstatemachine/persistence/WarningType;
 }
@@ -256,6 +257,7 @@ public class ru/nsk/kstatemachine/state/BaseStateImpl : ru/nsk/kstatemachine/sta
 public final class ru/nsk/kstatemachine/state/ChildMode : java/lang/Enum {
 	public static final field EXCLUSIVE Lru/nsk/kstatemachine/state/ChildMode;
 	public static final field PARALLEL Lru/nsk/kstatemachine/state/ChildMode;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lru/nsk/kstatemachine/state/ChildMode;
 	public static fun values ()[Lru/nsk/kstatemachine/state/ChildMode;
 }
@@ -372,6 +374,7 @@ public final class ru/nsk/kstatemachine/state/HistoryState$DefaultImpls {
 public final class ru/nsk/kstatemachine/state/HistoryType : java/lang/Enum {
 	public static final field DEEP Lru/nsk/kstatemachine/state/HistoryType;
 	public static final field SHALLOW Lru/nsk/kstatemachine/state/HistoryType;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lru/nsk/kstatemachine/state/HistoryType;
 	public static fun values ()[Lru/nsk/kstatemachine/state/HistoryType;
 }
@@ -616,6 +619,7 @@ public abstract interface class ru/nsk/kstatemachine/statemachine/CreationArgume
 	public abstract fun getDoNotThrowOnMultipleTransitionsMatch ()Z
 	public abstract fun getEventRecordingArguments ()Lru/nsk/kstatemachine/statemachine/EventRecordingArguments;
 	public abstract fun getRequireNonBlankNames ()Z
+	public abstract fun getSkipCoroutineScopeValidityCheck ()Z
 	public abstract fun isUndoEnabled ()Z
 }
 
@@ -624,11 +628,13 @@ public abstract interface class ru/nsk/kstatemachine/statemachine/CreationArgume
 	public abstract fun getDoNotThrowOnMultipleTransitionsMatch ()Z
 	public abstract fun getEventRecordingArguments ()Lru/nsk/kstatemachine/statemachine/EventRecordingArguments;
 	public abstract fun getRequireNonBlankNames ()Z
+	public abstract fun getSkipCoroutineScopeValidityCheck ()Z
 	public abstract fun isUndoEnabled ()Z
 	public abstract fun setAutoDestroyOnStatesReuse (Z)V
 	public abstract fun setDoNotThrowOnMultipleTransitionsMatch (Z)V
 	public abstract fun setEventRecordingArguments (Lru/nsk/kstatemachine/statemachine/EventRecordingArguments;)V
 	public abstract fun setRequireNonBlankNames (Z)V
+	public abstract fun setSkipCoroutineScopeValidityCheck (Z)V
 	public abstract fun setUndoEnabled (Z)V
 }
 
@@ -662,6 +668,7 @@ public final class ru/nsk/kstatemachine/statemachine/ProcessingResult : java/lan
 	public static final field IGNORED Lru/nsk/kstatemachine/statemachine/ProcessingResult;
 	public static final field PENDING Lru/nsk/kstatemachine/statemachine/ProcessingResult;
 	public static final field PROCESSED Lru/nsk/kstatemachine/statemachine/ProcessingResult;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lru/nsk/kstatemachine/statemachine/ProcessingResult;
 	public static fun values ()[Lru/nsk/kstatemachine/statemachine/ProcessingResult;
 }
@@ -959,8 +966,6 @@ public final class ru/nsk/kstatemachine/transition/TransitionParams {
 	public final fun component2 ()Lru/nsk/kstatemachine/transition/TransitionDirection;
 	public final fun component3 ()Lru/nsk/kstatemachine/event/Event;
 	public final fun component4 ()Ljava/lang/Object;
-	public final fun copy (Lru/nsk/kstatemachine/transition/Transition;Lru/nsk/kstatemachine/transition/TransitionDirection;Lru/nsk/kstatemachine/event/Event;Ljava/lang/Object;)Lru/nsk/kstatemachine/transition/TransitionParams;
-	public static synthetic fun copy$default (Lru/nsk/kstatemachine/transition/TransitionParams;Lru/nsk/kstatemachine/transition/Transition;Lru/nsk/kstatemachine/transition/TransitionDirection;Lru/nsk/kstatemachine/event/Event;Ljava/lang/Object;ILjava/lang/Object;)Lru/nsk/kstatemachine/transition/TransitionParams;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getArgument ()Ljava/lang/Object;
 	public final fun getDirection ()Lru/nsk/kstatemachine/transition/TransitionDirection;
@@ -973,11 +978,13 @@ public final class ru/nsk/kstatemachine/transition/TransitionParams {
 public final class ru/nsk/kstatemachine/transition/TransitionParamsKt {
 	public static final fun getUnwrappedArgument (Lru/nsk/kstatemachine/transition/TransitionParams;)Ljava/lang/Object;
 	public static final fun getUnwrappedEvent (Lru/nsk/kstatemachine/transition/TransitionParams;)Lru/nsk/kstatemachine/event/Event;
+	public static final fun isStartTransition (Lru/nsk/kstatemachine/transition/TransitionParams;)Z
 }
 
 public final class ru/nsk/kstatemachine/transition/TransitionType : java/lang/Enum {
 	public static final field EXTERNAL Lru/nsk/kstatemachine/transition/TransitionType;
 	public static final field LOCAL Lru/nsk/kstatemachine/transition/TransitionType;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lru/nsk/kstatemachine/transition/TransitionType;
 	public static fun values ()[Lru/nsk/kstatemachine/transition/TransitionType;
 }
