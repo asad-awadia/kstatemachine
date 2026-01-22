@@ -48,6 +48,15 @@ interface CreationArguments {
      * Default: null
      */
     val eventRecordingArguments: EventRecordingArguments?
+
+    /**
+     * The library checks if you are trying to use multithreaded Dispatcher like
+     * Dispatchers.Default or Dispatcher.IO which is usually an error.
+     * @see [https://kstatemachine.github.io/kstatemachine/pages/multithreading.html#use-single-threaded-coroutinescope]
+     * You can skip this validation setting the flag to true.
+     * Default: false
+     */
+    val skipCoroutineScopeValidityCheck: Boolean
 }
 
 interface CreationArgumentsBuilder : CreationArguments {
@@ -56,6 +65,7 @@ interface CreationArgumentsBuilder : CreationArguments {
     override var doNotThrowOnMultipleTransitionsMatch: Boolean
     override var requireNonBlankNames: Boolean
     override var eventRecordingArguments: EventRecordingArguments?
+    override var skipCoroutineScopeValidityCheck: Boolean
 }
 
 private data class CreationArgumentsBuilderImpl(
@@ -63,7 +73,8 @@ private data class CreationArgumentsBuilderImpl(
     override var isUndoEnabled: Boolean = false,
     override var doNotThrowOnMultipleTransitionsMatch: Boolean = false,
     override var requireNonBlankNames: Boolean = false,
-    override var eventRecordingArguments: EventRecordingArguments? = null
+    override var eventRecordingArguments: EventRecordingArguments? = null,
+    override var skipCoroutineScopeValidityCheck: Boolean = false,
 ) : CreationArgumentsBuilder
 
 @OptIn(ExperimentalContracts::class)

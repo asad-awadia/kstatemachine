@@ -79,7 +79,6 @@ enum class CoroutineStarterType {
      * but it should be ok as it happens sequentially.
      */
     COROUTINES_LIB_SINGLE_THREAD_DISPATCHER,
-    COROUTINES_LIB_DEFAULT_LIMITED_DISPATCHER,
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -126,14 +125,6 @@ suspend fun createTestStateMachine(
         )
         CoroutineStarterType.COROUTINES_LIB_SINGLE_THREAD_DISPATCHER -> createStateMachine(
             CoroutineScope(singleThreadContext),
-            name,
-            childMode,
-            start,
-            creationArguments,
-            init = init
-        )
-        CoroutineStarterType.COROUTINES_LIB_DEFAULT_LIMITED_DISPATCHER -> createStateMachine(
-            CoroutineScope(Dispatchers.Default.limitedParallelism(1)), // does not guarantee same thread for each task
             name,
             childMode,
             start,

@@ -12,12 +12,16 @@ import io.kotest.assertions.throwables.shouldThrowUnitWithMessage
 import io.kotest.assertions.throwables.shouldThrowWithMessage
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.datatest.withData
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldEndWith
 import io.mockk.called
 import io.mockk.verify
 import io.mockk.verifySequence
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import ru.nsk.kstatemachine.*
 import ru.nsk.kstatemachine.event.Event
 import ru.nsk.kstatemachine.event.EventMatcher
@@ -26,10 +30,7 @@ import ru.nsk.kstatemachine.state.*
 import ru.nsk.kstatemachine.statemachine.StateMachineTestData.OffEvent
 import ru.nsk.kstatemachine.statemachine.StateMachineTestData.OnEvent
 import ru.nsk.kstatemachine.testing.Testing.startFromBlocking
-import ru.nsk.kstatemachine.transition.DefaultTransition
-import ru.nsk.kstatemachine.transition.Transition
-import ru.nsk.kstatemachine.transition.TransitionType
-import ru.nsk.kstatemachine.transition.onTriggered
+import ru.nsk.kstatemachine.transition.*
 
 private object StateMachineTestData {
     object OnEvent : Event
@@ -37,6 +38,36 @@ private object StateMachineTestData {
 }
 
 class StateMachineTest : FreeSpec({
+    withData(
+        nameFn = { "dispatcher: $it" },
+        CoroutineScope(Dispatchers.Default),
+        CoroutineScope(Dispatchers.Default.limitedParallelism(1)),
+        CoroutineScope(Dispatchers.IO),
+        CoroutineScope(Dispatchers.IO.limitedParallelism(1)),
+    ) { scope ->
+        "scope validation" {
+            try {
+                createStateMachine(
+                    scope,
+                    creationArguments = buildCreationArguments { skipCoroutineScopeValidityCheck = true }
+                ) {
+                    initialState("initial")
+                }
+
+                shouldThrowWithMessage<IllegalStateException>(
+                    "Using Dispatchers.Default or Dispatchers.IO for StateMachine even with limitedParallelism(1) is the most likely an error, as it is multi-threaded, see the docs: \n" +
+                            "https://kstatemachine.github.io/kstatemachine/pages/multithreading.html#use-single-threaded-coroutinescopeYou can opt-out this check by CreationArguments::skipCoroutineScopeValidityCheck flag."
+                ) {
+                    createStateMachine(scope) {
+                        initialState("initial")
+                    }
+                }
+            } finally {
+                scope.cancel()
+            }
+        }
+    }
+
     CoroutineStarterType.entries.forEach { coroutineStarterType ->
         "$coroutineStarterType" - {
             "no initial state" {
@@ -361,6 +392,22 @@ class StateMachineTest : FreeSpec({
                     initialState("initial")
                     onStarted { stop() }
                 }
+            }
+
+            "isStartTransition" {
+                lateinit var state2: State
+                val machine = createTestStateMachine(coroutineStarterType) {
+                    state2 = state("state2") {
+                        onEntry { it.isStartTransition shouldBe false }
+                    }
+                    initialState("initial") {
+                        onEntry { it.isStartTransition shouldBe true }
+                        transitionOn<SwitchEvent> { targetState = { state2 } }
+                    }
+                    onStarted { it.isStartTransition shouldBe true }
+                }
+                machine.processEvent(SwitchEvent)
+                machine.activeStates().shouldContain(state2)
             }
 
             "destroy from onStart" {

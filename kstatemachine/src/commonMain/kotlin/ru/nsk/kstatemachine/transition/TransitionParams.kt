@@ -8,9 +8,11 @@
 package ru.nsk.kstatemachine.transition
 
 import ru.nsk.kstatemachine.event.Event
+import ru.nsk.kstatemachine.event.StartEvent
 import ru.nsk.kstatemachine.event.WrappedEvent
 import ru.nsk.kstatemachine.statemachine.StateMachineDslMarker
 
+@ConsistentCopyVisibility
 @StateMachineDslMarker
 data class TransitionParams<E : Event> internal constructor(
     val transition: Transition<E>,
@@ -35,3 +37,11 @@ val TransitionParams<*>.unwrappedEvent get() = if (event is WrappedEvent) event.
  * If the event is not [WrappedEvent] this is same as [TransitionParams.argument] property
  */
 val TransitionParams<*>.unwrappedArgument get() = if (event is WrappedEvent) event.argument else argument
+
+/**
+ * Returns true is the transition is triggered by [StartEvent].
+ * This means that the StateMachine is starting.
+ * Might be useful to check if you're entering some State just by a machine startup
+ * or by outside event.
+ */
+val TransitionParams<*>.isStartTransition get() = event is StartEvent
