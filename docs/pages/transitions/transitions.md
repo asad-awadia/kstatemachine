@@ -93,6 +93,37 @@ transition<SwitchEvent> {
 }
 ```
 
+## Check if the transition is triggered by StartEvent
+
+When you start a StateMachine it enters it's initial state path. This is done with special 
+library defined event called `StartEvent`. 
+
+Sample: There are use cases when you need to check if the state is activated by StateMachine initialization
+or due to some event processing in machine runtime (after initialization). 
+
+It can be done by checking the event type in `TransitionParams`, if it is `StartEvent` of not.
+The library provides convenience `TransitionParams::isStartTransition` extension property for that purpose:
+
+```kotlin
+val machine = createStateMachine(scope) {
+    val state1 = initialState("state1") {
+        // will be triggered twice,
+        // first time on initialization and the second after SwitchEvent processing
+        onEntry {
+            // true - if entering by StateMachine initialization (StartEvent)
+            // false - if entering any other way, by SwitchEvent in this case.
+            prinln(it.isStartTransition)
+        }
+        transitionOn<SwitchEvent> { targetState = { state2 } }
+    }
+    val state2 = state("state2") {
+        transitionOn<SwitchEvent> { targetState = { state1 } }
+    }
+}
+machine.processEvent(SwitchEvent)
+machine.processEvent(SwitchEvent)
+```
+
 ## Listen to all transitions in one place
 
 There might be many transitions from one state to another. It is possible to listen to all of them in state machine
